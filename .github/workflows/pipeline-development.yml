@@ -36,14 +36,14 @@ jobs:
     - name: Adicionar permissão para mvnw
       run: chmod +x mvnw
     - name: Análise Sonarcloud
-      run: echo Testes de quality executado com sucesso
+      run: ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=lab-devops-project
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         
         
   tests:
     name: Testes automatizados
-    needs: build
+    needs: code-quality
     runs-on: ubuntu-latest
       
     steps:
@@ -57,6 +57,53 @@ jobs:
         cache: maven
     - name: Testes Unitários
       run: mvn -B test --file pom.xml
+      
+      
+  image-heroku:
+    name: Enviar imagem Heroku
+    needs: tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Git Checkout
+      uses: actions/checkout@v3
+    - name: Prepara ambiente Docker
+      uses: docker/setup-buildx-action@v2
+      with:
+        install: true
+    - name: Login no Heroku
+      uses: docker/login-action@v2
+      with:
+        registry: registry.heroku.com
+        username: ${{ secrets.HEROKU_EMAIL }}
+        password: ${{ secrets.HEROKU_API_KEY }}
+    - name: Criação e envio da imagem
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: registry.heroku.com/NOME_SUA_APLICACAO_HEROKU/web:latest
+        
+        
+  publication:
+    name: Publicar ambiente Desenvolvimento
+    needs: image-heroku
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Git Checkout
+      uses: actions/checkout@v3
+    - name: Login no Heroku
+      uses: docker/login-action@v2
+      with:
+        registry: registry.heroku.com
+        username: ${{ secrets.HEROKU_EMAIL }}
+        password: ${{ secrets.HEROKU_API_KEY }}
+    - name: Publicação
+      run: heroku container:release -a NOME_SUA_APLICACAO_HEROKU web 
+      env:
+        HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
 
       
   
@@ -65,16 +112,4 @@ jobs:
       
       
       
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+  
