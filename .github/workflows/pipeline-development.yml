@@ -36,7 +36,7 @@ jobs:
     - name: Adicionar permissão para mvnw
       run: chmod +x mvnw
     - name: Análise Sonarcloud
-      run: echo Testes de quality executado com sucesso
+      run: ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=lab-devops-project
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         
@@ -65,16 +65,4 @@ jobs:
       
       
       
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+  
