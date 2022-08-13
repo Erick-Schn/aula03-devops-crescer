@@ -81,7 +81,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: registry.heroku.com/NOME_SUA_APLICACAO_HEROKU/web:latest
+        tags: registry.heroku.com/aula03-devops-crescer/web:latest
         
         
   publication:
@@ -99,7 +99,7 @@ jobs:
         username: ${{ secrets.HEROKU_EMAIL }}
         password: ${{ secrets.HEROKU_API_KEY }}
     - name: Publicação
-      run: heroku container:release -a NOME_SUA_APLICACAO_HEROKU web 
+      run: heroku container:release -a aula03-devops-crescer web 
       env:
         HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
